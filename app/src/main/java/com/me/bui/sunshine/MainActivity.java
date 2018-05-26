@@ -18,6 +18,8 @@ package com.me.bui.sunshine;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -33,19 +35,27 @@ import java.net.URL;
 
 public class MainActivity extends AppCompatActivity {
 
-    private TextView mWeatherTextView;
     private TextView mErrorMessageDisplay;
     private ProgressBar mLoadingIndicator;
+
+    private RecyclerView mRecyclerView;
+    private ForecastAdapter mForecastAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mWeatherTextView = (TextView) findViewById(R.id.tv_weather_data);
         mErrorMessageDisplay = (TextView) findViewById(R.id.tv_error_message_display);
         mLoadingIndicator = (ProgressBar) findViewById(R.id.pb_loading_indicator);
 
+        mRecyclerView = (RecyclerView) findViewById(R.id.recyclerview_forecast);
+        LinearLayoutManager layoutManager
+                = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
+        mRecyclerView.setLayoutManager(layoutManager);
+        mRecyclerView.setHasFixedSize(true);
+        mForecastAdapter = new ForecastAdapter();
+        mRecyclerView.setAdapter(mForecastAdapter);
         loadWeatherData();
 
     }
@@ -60,12 +70,12 @@ public class MainActivity extends AppCompatActivity {
     private void showWeatherDataView() {
         mErrorMessageDisplay.setVisibility(View.INVISIBLE);
         /* Then, make sure the weather data is visible */
-        mWeatherTextView.setVisibility(View.VISIBLE);
+        mRecyclerView.setVisibility(View.VISIBLE);
     }
 
     private void showErrorMessage() {
         /* First, hide the currently visible data */
-        mWeatherTextView.setVisibility(View.INVISIBLE);
+        mRecyclerView.setVisibility(View.INVISIBLE);
 
         /* Then, show the error */
         mErrorMessageDisplay.setVisibility(View.VISIBLE);
@@ -82,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.action_refresh) {
-            mWeatherTextView.setText("");
+            mForecastAdapter.setWeatherData(null);
             loadWeatherData();
             return true;
         }
@@ -128,17 +138,15 @@ public class MainActivity extends AppCompatActivity {
         // COMPLETED (7) Override the onPostExecute method to display the results of the network request
         @Override
         protected void onPostExecute(String[] weatherData) {
+            mLoadingIndicator.setVisibility(View.INVISIBLE);
             if (weatherData != null) {
                 /*
                  * Iterate through the array and append the Strings to the TextView. The reason why we add
                  * the "\n\n\n" after the String is to give visual separation between each String in the
                  * TextView. Later, we'll learn about a better way to display lists of data.
                  */
-                mLoadingIndicator.setVisibility(View.INVISIBLE);
                 showWeatherDataView();
-                for (String weatherString : weatherData) {
-                    mWeatherTextView.append((weatherString) + "\n\n\n");
-                }
+                mForecastAdapter.setWeatherData(weatherData);
             } else {
                 showErrorMessage();
             }
