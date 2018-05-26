@@ -14,10 +14,15 @@ public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.Foreca
 
     // COMPLETED (23) Create a private string array called mWeatherData
     private String[] mWeatherData;
+    private ForecastAdapterOnClickHandler mClickHandler;
 
     // COMPLETED (47) Create the default constructor (we will pass in parameters in a later lesson)
-    public ForecastAdapter() {
+    public ForecastAdapter(ForecastAdapterOnClickHandler clickHandler) {
+        mClickHandler = clickHandler;
+    }
 
+    public interface ForecastAdapterOnClickHandler{
+        public void onClick(String weatherForDay);
     }
 
     // COMPLETED (16) Create a class within ForecastAdapter called ForecastAdapterViewHolder
@@ -25,7 +30,7 @@ public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.Foreca
     /**
      * Cache of the children views for a forecast list item.
      */
-    public class ForecastAdapterViewHolder extends RecyclerView.ViewHolder {
+    public class ForecastAdapterViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
 
         // Within ForecastAdapterViewHolder ///////////////////////////////////////////////////////
         // COMPLETED (18) Create a public final TextView variable called mWeatherTextView
@@ -37,6 +42,14 @@ public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.Foreca
         public ForecastAdapterViewHolder(View view) {
             super(view);
             mWeatherTextView = (TextView) view.findViewById(R.id.tv_weather_data);
+            view.setOnClickListener(this);
+        }
+
+        @Override
+        public void onClick(View view) {
+            int adapterPosition = getAdapterPosition();
+            String weatherForDay = mWeatherData[adapterPosition];
+            mClickHandler.onClick(weatherForDay);
         }
         // Within ForecastAdapterViewHolder ///////////////////////////////////////////////////////
     }
