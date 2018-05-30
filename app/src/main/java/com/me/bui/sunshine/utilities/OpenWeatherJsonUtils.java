@@ -154,15 +154,22 @@ public final class OpenWeatherJsonUtils {
     }
 
     /**
-     * Parse the JSON and convert it into ContentValues that can be inserted into our database.
+     * This method parses JSON from a web response and returns an array of Strings
+     * describing the weather over various days from the forecast.
+     * <p/>
+     * Later on, we'll be parsing the JSON into structured data within the
+     * getFullWeatherDataFromJson function, leveraging the data we have stored in the JSON. For
+     * now, we just convert the JSON into human-readable strings.
      *
-     * @param context         An application context, such as a service or activity context.
-     * @param forecastJsonStr The JSON to parse into ContentValues.
+     * @param forecastJsonStr JSON response from server
      *
-     * @return An array of ContentValues parsed from the JSON.
+     * @return Array of Strings describing weather data
+     *
+     * @throws JSONException If JSON data cannot be properly parsed
      */
-    public static ContentValues[] getFullWeatherDataFromJson(Context context, String forecastJsonStr) throws JSONException{
-        /** This will be implemented in a future lesson **/
+    public static ContentValues[] getWeatherContentValuesFromJson(Context context, String forecastJsonStr)
+            throws JSONException {
+
         JSONObject forecastJson = new JSONObject(forecastJsonStr);
 
         /* Is there an error? */
