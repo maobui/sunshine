@@ -38,6 +38,7 @@ import android.widget.TextView;
 
 import com.me.bui.sunshine.data.SunshinePreferences;
 import com.me.bui.sunshine.data.WeatherContract;
+import com.me.bui.sunshine.sync.SunshineSyncUtils;
 import com.me.bui.sunshine.utilities.FakeDataUtils;
 
 public class MainActivity extends AppCompatActivity implements
@@ -74,8 +75,6 @@ public class MainActivity extends AppCompatActivity implements
         setContentView(R.layout.activity_main);
         getSupportActionBar().setElevation(0f);
 
-        FakeDataUtils.insertFakeData(this);
-
         mRecyclerView = (RecyclerView) findViewById(R.id.recyclerview_forecast);
         mLoadingIndicator = (ProgressBar) findViewById(R.id.pb_loading_indicator);
 
@@ -93,6 +92,8 @@ public class MainActivity extends AppCompatActivity implements
         Log.d(TAG, "onCreate: registering preference changed listener");
         PreferenceManager.getDefaultSharedPreferences(this)
                 .registerOnSharedPreferenceChangeListener(this);
+
+        SunshineSyncUtils.startImmediateSync(this);
     }
 
     @Override

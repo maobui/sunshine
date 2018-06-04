@@ -11,6 +11,7 @@ import android.support.v7.preference.PreferenceScreen;
 
 import com.me.bui.sunshine.data.SunshinePreferences;
 import com.me.bui.sunshine.data.WeatherContract;
+import com.me.bui.sunshine.sync.SunshineSyncUtils;
 
 /**
  * Created by mao.bui on 5/27/2018.
@@ -76,6 +77,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements
                 // we've changed the location
                 // Wipe out any potential PlacePicker latlng values so that we can use this text entry.
                 SunshinePreferences.resetLocationCoordinates(activity);
+                SunshineSyncUtils.startImmediateSync(activity);
             } else if (key.equals(getString(R.string.pref_units_key))) {
                 // units have changed. update lists of weather entries accordingly
                 activity.getContentResolver().notifyChange(WeatherContract.WeatherEntry.CONTENT_URI, null);
