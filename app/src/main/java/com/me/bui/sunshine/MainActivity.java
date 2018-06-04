@@ -86,7 +86,7 @@ public class MainActivity extends AppCompatActivity implements
         mForecastAdapter = new ForecastAdapter(this, this);
         mRecyclerView.setAdapter(mForecastAdapter);
 
-//        showLoading();
+        showLoading();
 
         getSupportLoaderManager().initLoader(ID_FORECAST_LOADER, null, this);
 
@@ -120,24 +120,10 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onLoadFinished(Loader<Cursor> loader, final Cursor data) {
         Log.d(TAG, "-------------------------------- onLoadFinished");
-        showLoading();
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    // fake loading data.
-                    Thread.sleep(3000);
-
-                    mForecastAdapter.swapCursor(data);
-                    if (mPosition == RecyclerView.NO_POSITION) mPosition = 0;
-                    mRecyclerView.smoothScrollToPosition(mPosition);
-                    if (data.getCount() != 0) showWeatherDataView();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        }).run();
-
+        mForecastAdapter.swapCursor(data);
+        if (mPosition == RecyclerView.NO_POSITION) mPosition = 0;
+        mRecyclerView.smoothScrollToPosition(mPosition);
+        if (data.getCount() != 0) showWeatherDataView();
     }
 
     @Override
@@ -161,12 +147,11 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void onClick(String weatherForDay) {
-        Context context = this;
-        Class destinationClass = DetailActivity.class;
-        Intent intentToStartDetailActivity = new Intent(context, destinationClass);
-        intentToStartDetailActivity.putExtra(Intent.EXTRA_TEXT, weatherForDay);
-        startActivity(intentToStartDetailActivity);
+    public void onClick(long date) {
+        Intent weatherDetailIntent = new Intent(MainActivity.this, DetailActivity.class);
+        Uri uriForDateClicked = WeatherContract.WeatherEntry.buildWeatherUriWithDate(date);
+        weatherDetailIntent.setData(uriForDateClicked);
+        startActivity(weatherDetailIntent);
     }
 
     private void showWeatherDataView() {
