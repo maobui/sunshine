@@ -32,5 +32,5 @@ public abstract class SunshineDatabase extends RoomDatabase{
         return sInstance;
     }
 
-    public abstract WeatherDao mWeatherDao();
+    public abstract WeatherDao weatherDao();
 }

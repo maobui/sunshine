@@ -7,9 +7,6 @@ import android.text.format.DateUtils;
 
 import com.me.bui.sunshine.data.pref.SunshinePreferences;
 import com.me.bui.sunshine.data.db.WeatherContract;
-import com.me.bui.sunshine.data.network.NetworkUtils;
-import com.me.bui.sunshine.data.network.NotificationUtils;
-import com.me.bui.sunshine.data.network.OpenWeatherJsonUtils;
 
 import java.net.URL;
 
@@ -27,7 +24,7 @@ public class SunshineSyncTask {
             String jsonWeatherResponse = NetworkUtils.getResponseFromHttpUrl(weatherRequestUrl);
 
             /* Parse the JSON into a list of weather values */
-            ContentValues[] weatherValues = OpenWeatherJsonUtils
+            ContentValues[] weatherValues = OpenWeatherJsonParser
                     .getWeatherContentValuesFromJson(context, jsonWeatherResponse);
 
             if (weatherValues != null && weatherValues.length != 0) {

@@ -25,6 +25,7 @@ import com.me.bui.sunshine.data.db.WeatherEntry;
 import com.me.bui.sunshine.ui.setting.SettingsActivity;
 import com.me.bui.sunshine.data.db.WeatherContract;
 import com.me.bui.sunshine.databinding.ActivityDetailBinding;
+import com.me.bui.sunshine.utilities.InjectorUtils;
 import com.me.bui.sunshine.utilities.SunshineDateUtils;
 import com.me.bui.sunshine.utilities.SunshineWeatherUtils;
 
@@ -77,6 +78,9 @@ public class DetailActivity extends AppCompatActivity implements LifecycleOwner 
 
         mViewModel.getWeather().observe(this, weatherEntry -> {
             if (weatherEntry != null) bindWeatherToUI(weatherEntry);});
+
+        // THIS IS JUST TO RUN THE CODE; REPOSITORY SHOULD NEVER BE CREATED IN DETAILACTIVITY
+        InjectorUtils.provideRepository(this).initializeData();
     }
 
     @Override
