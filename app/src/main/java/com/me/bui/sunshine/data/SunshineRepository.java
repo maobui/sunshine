@@ -4,6 +4,7 @@ import android.arch.lifecycle.LiveData;
 import android.util.Log;
 
 import com.me.bui.sunshine.AppExecutors;
+import com.me.bui.sunshine.data.db.ListWeatherEntry;
 import com.me.bui.sunshine.data.db.WeatherDao;
 import com.me.bui.sunshine.data.db.WeatherEntry;
 import com.me.bui.sunshine.data.network.WeatherNetworkDataSource;
@@ -90,7 +91,7 @@ public class SunshineRepository {
     }
 
 
-    public LiveData<List<WeatherEntry>> getCurrentWeatherForecasts() {
+    public LiveData<List<ListWeatherEntry>> getCurrentWeatherForecasts() {
         initializeData();
         Date today = SunshineDateUtils.getNormalizedUtcDateForToday();
         return mWeatherDao.getCurrentWeatherForecasts(today);

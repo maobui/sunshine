@@ -30,7 +30,7 @@ public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.Foreca
     private static final int VIEW_TYPE_FUTURE_DAY = 1;
 
     private boolean mUseTodayLayout;
-    private List<WeatherEntry> mForecast;
+    private List<ListWeatherEntry> mForecast;
 
     public ForecastAdapter(Context context, ForecastAdapterOnClickHandler clickHandler) {
         mContext = context;
@@ -64,7 +64,7 @@ public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.Foreca
 
     @Override
     public void onBindViewHolder(ForecastAdapterViewHolder forecastAdapterViewHolder, int position) {
-        WeatherEntry currentWeather = mForecast.get(position);
+        ListWeatherEntry currentWeather = mForecast.get(position);
 
         int weatherId = currentWeather.getId();
         int weatherImageId;
@@ -119,7 +119,7 @@ public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.Foreca
         return mForecast.size();
     }
 
-    public void swapForecast(final List<WeatherEntry> newForecast) {
+    public void swapForecast(final List<ListWeatherEntry> newForecast) {
         // If there was no forecast data, then recreate all of the list
         if (mForecast == null) {
             mForecast = newForecast;
@@ -151,8 +151,8 @@ public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.Foreca
 
                 @Override
                 public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
-                    WeatherEntry newWeather = newForecast.get(newItemPosition);
-                    WeatherEntry oldWeather = mForecast.get(oldItemPosition);
+                    ListWeatherEntry newWeather = newForecast.get(newItemPosition);
+                    ListWeatherEntry oldWeather = mForecast.get(oldItemPosition);
                     return newWeather.getId() == oldWeather.getId()
                             && newWeather.getDate().equals(oldWeather.getDate());
                 }
