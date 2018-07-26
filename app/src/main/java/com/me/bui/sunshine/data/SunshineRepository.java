@@ -10,6 +10,7 @@ import com.me.bui.sunshine.data.network.WeatherNetworkDataSource;
 import com.me.bui.sunshine.utilities.SunshineDateUtils;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created by mao.bui on 7/26/2018.
@@ -86,6 +87,13 @@ public class SunshineRepository {
     public LiveData<WeatherEntry> getWeatherByDate(Date date) {
         initializeData();
         return mWeatherDao.getWeatherByDate(date);
+    }
+
+
+    public LiveData<List<WeatherEntry>> getCurrentWeatherForecasts() {
+        initializeData();
+        Date today = SunshineDateUtils.getNormalizedUtcDateForToday();
+        return mWeatherDao.getCurrentWeatherForecasts(today);
     }
 
 

@@ -33,9 +33,10 @@ import java.util.Date;
 
 public class DetailActivity extends AppCompatActivity implements LifecycleOwner {
 
+    public static final String WEATHER_ID_EXTRA = "WEATHER_ID_EXTRA";
+
     private static final String FORECAST_SHARE_HASHTAG = " #SunshineApp";
     private String mForecastSummary;
-    private Uri mUri;
 
     private LifecycleRegistry mLifecycleRegistry;
     private DetailActivityViewModel mViewModel;
@@ -53,10 +54,8 @@ public class DetailActivity extends AppCompatActivity implements LifecycleOwner 
 
         mDetailBinding = DataBindingUtil.setContentView(this, R.layout.activity_detail);
 
-        mUri = getIntent().getData();
-        if (mUri == null) throw new NullPointerException("URI for DetailActivity cannot be null");
-
-        Date date = SunshineDateUtils.getNormalizedUtcDateForToday();
+        long timestamp = getIntent().getLongExtra(WEATHER_ID_EXTRA, -1);
+        Date date = new Date(timestamp);
 
         // Get the ViewModel from the factory
         DetailViewModelFactory factory = InjectorUtils.provideDetailViewModelFactory(this.getApplicationContext(), date);

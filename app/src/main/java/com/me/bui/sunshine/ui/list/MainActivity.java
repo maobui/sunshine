@@ -1,28 +1,15 @@
-/*
- * Copyright (C) 2016 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+
 package com.me.bui.sunshine.ui.list;
 
-import android.content.SharedPreferences;
-import android.database.Cursor;
-import android.support.v4.app.LoaderManager.LoaderCallbacks;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
+import android.arch.lifecycle.Lifecycle;
+import android.arch.lifecycle.LifecycleOwner;
+import android.arch.lifecycle.LifecycleRegistry;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.preference.PreferenceManager;
 import android.support.v7.widget.LinearLayoutManager;
@@ -34,30 +21,20 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 
-import com.me.bui.sunshine.ui.detail.DetailActivity;
 import com.me.bui.sunshine.R;
-import com.me.bui.sunshine.ui.setting.SettingsActivity;
 import com.me.bui.sunshine.data.pref.SunshinePreferences;
-import com.me.bui.sunshine.data.db.WeatherContract;
-import com.me.bui.sunshine.data.network.SunshineSyncUtils;
+import com.me.bui.sunshine.ui.detail.DetailActivity;
+import com.me.bui.sunshine.ui.setting.SettingsActivity;
+import com.me.bui.sunshine.utilities.InjectorUtils;
+
+import java.util.Date;
 
 public class MainActivity extends AppCompatActivity implements
         ForecastAdapter.ForecastAdapterOnClickHandler,
-        LoaderCallbacks<Cursor>,
+        LifecycleOwner,
 		SharedPreferences.OnSharedPreferenceChangeListener {
 
     private static final String TAG = MainActivity.class.getSimpleName();
-
-    public static final String[] MAIN_FORECAST_PROJECTION = {
-            WeatherContract.WeatherEntry.COLUMN_DATE,
-            WeatherContract.WeatherEntry.COLUMN_MAX_TEMP,
-            WeatherContract.WeatherEntry.COLUMN_MIN_TEMP,
-            WeatherContract.WeatherEntry.COLUMN_WEATHER_ID,
-    };
-    public static final int INDEX_WEATHER_DATE = 0;
-    public static final int INDEX_WEATHER_MAX_TEMP = 1;
-    public static final int INDEX_WEATHER_MIN_TEMP = 2;
-    public static final int INDEX_WEATHER_CONDITION_ID = 3;
 
     private RecyclerView mRecyclerView;
     private int mPosition = RecyclerView.NO_POSITION;
@@ -65,7 +42,8 @@ public class MainActivity extends AppCompatActivity implements
 
     private ProgressBar mLoadingIndicator;
 
-    private static final int ID_FORECAST_LOADER = 0;
+    private LifecycleRegistry mLifecycleRegistry;
+    private MainActivityViewModel mViewModel;
 
     private static boolean PREFERENCES_HAVE_BEEN_UPDATED = false;
 
@@ -73,6 +51,10 @@ public class MainActivity extends AppCompatActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        mLifecycleRegistry = new LifecycleRegistry(this);
+        mLifecycleRegistry.markState(Lifecycle.State.CREATED);
+
         getSupportActionBar().setElevation(0f);
 
         mRecyclerView = (RecyclerView) findViewById(R.id.recyclerview_forecast);
@@ -85,52 +67,23 @@ public class MainActivity extends AppCompatActivity implements
         mForecastAdapter = new ForecastAdapter(this, this);
         mRecyclerView.setAdapter(mForecastAdapter);
 
-        showLoading();
+        MainViewModelFactory factory = InjectorUtils.provideMainActivityViewModelFactory(this.getApplicationContext());
+        mViewModel = ViewModelProviders.of(this, factory).get(MainActivityViewModel.class);
 
-        getSupportLoaderManager().initLoader(ID_FORECAST_LOADER, null, this);
+        mViewModel.getForecast().observe(this, weatherEntries -> {
+            mForecastAdapter.swapForecast(weatherEntries);
+            if (mPosition == RecyclerView.NO_POSITION) mPosition = 0;
+            mRecyclerView.smoothScrollToPosition(mPosition);
+
+            // Show the weather list or the loading screen based on whether the forecast data exists
+            // and is loaded
+            if (weatherEntries != null && weatherEntries.size() != 0) showWeatherDataView();
+            else showLoading();
+        });
 
         Log.d(TAG, "onCreate: registering preference changed listener");
         PreferenceManager.getDefaultSharedPreferences(this)
                 .registerOnSharedPreferenceChangeListener(this);
-
-        SunshineSyncUtils.initialize(this);
-    }
-
-    @Override
-    public Loader<Cursor> onCreateLoader(int loaderId, final Bundle loaderArgs) {
-        Log.d(TAG, "-------------------------------- onCreateLoader");
-//        showLoading();
-        switch (loaderId) {
-            case ID_FORECAST_LOADER:
-                Uri forecastQueryUri = WeatherContract.WeatherEntry.CONTENT_URI;
-                String sortOrder = WeatherContract.WeatherEntry.COLUMN_DATE + " ASC";
-                String selection = WeatherContract.WeatherEntry.getSqlSelectForTodayOnwards();
-
-                return new CursorLoader(this,
-                        forecastQueryUri,
-                        MAIN_FORECAST_PROJECTION,
-                        selection,
-                        null,
-                        sortOrder);
-
-            default:
-                throw new RuntimeException("Loader Not Implemented: " + loaderId);
-        }
-    }
-
-    @Override
-    public void onLoadFinished(Loader<Cursor> loader, final Cursor data) {
-        Log.d(TAG, "-------------------------------- onLoadFinished");
-        mForecastAdapter.swapCursor(data);
-        if (mPosition == RecyclerView.NO_POSITION) mPosition = 0;
-        mRecyclerView.smoothScrollToPosition(mPosition);
-        if (data.getCount() != 0) showWeatherDataView();
-    }
-
-    @Override
-    public void onLoaderReset(Loader<Cursor> loader) {
-        Log.d(TAG, "-------------------------------- onLoaderReset");
-        mForecastAdapter.swapCursor(null);
     }
 
     private void openLocationInMap() {
@@ -148,10 +101,10 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void onClick(long date) {
+    public void onClick(Date date) {
         Intent weatherDetailIntent = new Intent(MainActivity.this, DetailActivity.class);
-        Uri uriForDateClicked = WeatherContract.WeatherEntry.buildWeatherUriWithDate(date);
-        weatherDetailIntent.setData(uriForDateClicked);
+        long timestamp = date.getTime();
+        weatherDetailIntent.putExtra(DetailActivity.WEATHER_ID_EXTRA, timestamp);
         startActivity(weatherDetailIntent);
     }
 
@@ -171,9 +124,10 @@ public class MainActivity extends AppCompatActivity implements
     protected void onStart() {
         super.onStart();
 
+        mLifecycleRegistry.markState(Lifecycle.State.STARTED);
+
         if (PREFERENCES_HAVE_BEEN_UPDATED) {
             Log.d(TAG, "onStart: preferences were updated");
-            getSupportLoaderManager().restartLoader(ID_FORECAST_LOADER, null, this);
             PREFERENCES_HAVE_BEEN_UPDATED = false;
         }
     }
@@ -225,5 +179,11 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
         PREFERENCES_HAVE_BEEN_UPDATED = true;
+    }
+
+    @NonNull
+    @Override
+    public Lifecycle getLifecycle() {
+        return mLifecycleRegistry;
     }
 }

@@ -7,6 +7,7 @@ import com.me.bui.sunshine.data.SunshineRepository;
 import com.me.bui.sunshine.data.db.SunshineDatabase;
 import com.me.bui.sunshine.data.network.WeatherNetworkDataSource;
 import com.me.bui.sunshine.ui.detail.DetailViewModelFactory;
+import com.me.bui.sunshine.ui.list.MainViewModelFactory;
 
 import java.util.Date;
 
@@ -31,6 +32,11 @@ public class InjectorUtils {
     public static DetailViewModelFactory provideDetailViewModelFactory(Context context, Date date) {
         SunshineRepository repository = provideRepository(context.getApplicationContext());
         return new DetailViewModelFactory(repository, date);
+    }
+
+    public static MainViewModelFactory provideMainActivityViewModelFactory(Context context) {
+        SunshineRepository repository = provideRepository(context.getApplicationContext());
+        return new MainViewModelFactory(repository);
     }
 
 }

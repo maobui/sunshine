@@ -1,7 +1,7 @@
 package com.me.bui.sunshine.ui.list;
 
 import android.content.Context;
-import android.database.Cursor;
+import android.support.v7.util.DiffUtil;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,8 +10,13 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.me.bui.sunshine.R;
+import com.me.bui.sunshine.data.db.ListWeatherEntry;
+import com.me.bui.sunshine.data.db.WeatherEntry;
 import com.me.bui.sunshine.utilities.SunshineDateUtils;
 import com.me.bui.sunshine.utilities.SunshineWeatherUtils;
+
+import java.util.Date;
+import java.util.List;
 
 /**
  * Created by mao.bui on 5/27/2018.
@@ -20,12 +25,12 @@ public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.Foreca
 
     private final Context mContext;
     private ForecastAdapterOnClickHandler mClickHandler;
-    private Cursor mCursor;
 
     private static final int VIEW_TYPE_TODAY = 0;
     private static final int VIEW_TYPE_FUTURE_DAY = 1;
 
     private boolean mUseTodayLayout;
+    private List<WeatherEntry> mForecast;
 
     public ForecastAdapter(Context context, ForecastAdapterOnClickHandler clickHandler) {
         mContext = context;
@@ -33,8 +38,8 @@ public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.Foreca
         mUseTodayLayout = mContext.getResources().getBoolean(R.bool.use_today_layout);
     }
 
-    public interface ForecastAdapterOnClickHandler{
-        public void onClick(long date);
+    public interface ForecastAdapterOnClickHandler {
+        public void onClick(Date date);
     }
 
     @Override
@@ -59,9 +64,9 @@ public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.Foreca
 
     @Override
     public void onBindViewHolder(ForecastAdapterViewHolder forecastAdapterViewHolder, int position) {
-        mCursor.moveToPosition(position);
+        WeatherEntry currentWeather = mForecast.get(position);
 
-        int weatherId = mCursor.getInt(MainActivity.INDEX_WEATHER_CONDITION_ID);
+        int weatherId = currentWeather.getId();
         int weatherImageId;
         int viewType = getItemViewType(position);
         switch (viewType) {
@@ -78,7 +83,7 @@ public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.Foreca
         }
 
         forecastAdapterViewHolder.iconView.setImageResource(weatherImageId);
-        long dateInMillis = mCursor.getLong(MainActivity.INDEX_WEATHER_DATE);
+        long dateInMillis = currentWeather.getDate().getTime();
         String dateString = SunshineDateUtils.getFriendlyDateString(mContext, dateInMillis, false);
         forecastAdapterViewHolder.dateView.setText(dateString);
         String description = SunshineWeatherUtils.getStringForWeatherCondition(mContext, weatherId);
@@ -86,13 +91,13 @@ public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.Foreca
         forecastAdapterViewHolder.descriptionView.setText(description);
         forecastAdapterViewHolder.descriptionView.setContentDescription(descriptionA11y);
 
-        double highInCelsius = mCursor.getDouble(MainActivity.INDEX_WEATHER_MAX_TEMP);
+        double highInCelsius = currentWeather.getMax();
         String highString = SunshineWeatherUtils.formatTemperature(mContext, highInCelsius);
         String highA11y = mContext.getString(R.string.a11y_high_temp, highString);
         forecastAdapterViewHolder.highTempView.setText(highString);
         forecastAdapterViewHolder.highTempView.setContentDescription(highA11y);
 
-        double lowInCelsius = mCursor.getDouble(MainActivity.INDEX_WEATHER_MIN_TEMP);
+        double lowInCelsius = currentWeather.getMin();
         String lowString = SunshineWeatherUtils.formatTemperature(mContext, lowInCelsius);
         String lowA11y = mContext.getString(R.string.a11y_low_temp, lowString);
         forecastAdapterViewHolder.lowTempView.setText(lowString);
@@ -110,16 +115,54 @@ public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.Foreca
 
     @Override
     public int getItemCount() {
-        if (null == mCursor) return 0;
-        return mCursor.getCount();
+        if (null == mForecast) return 0;
+        return mForecast.size();
     }
 
-    public void swapCursor(Cursor newCursor) {
-        mCursor = newCursor;
-        notifyDataSetChanged();
+    public void swapForecast(final List<WeatherEntry> newForecast) {
+        // If there was no forecast data, then recreate all of the list
+        if (mForecast == null) {
+            mForecast = newForecast;
+            notifyDataSetChanged();
+        } else {
+            /*
+             * Otherwise we use DiffUtil to calculate the changes and update accordingly. This
+             * shows the four methods you need to override to return a DiffUtil callback. The
+             * old list is the current list stored in mForecast, where the new list is the new
+             * values passed in from the observing the database.
+             */
+
+            DiffUtil.DiffResult result = DiffUtil.calculateDiff(new DiffUtil.Callback() {
+                @Override
+                public int getOldListSize() {
+                    return mForecast.size();
+                }
+
+                @Override
+                public int getNewListSize() {
+                    return newForecast.size();
+                }
+
+                @Override
+                public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
+                    return mForecast.get(oldItemPosition).getId() ==
+                            newForecast.get(newItemPosition).getId();
+                }
+
+                @Override
+                public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
+                    WeatherEntry newWeather = newForecast.get(newItemPosition);
+                    WeatherEntry oldWeather = mForecast.get(oldItemPosition);
+                    return newWeather.getId() == oldWeather.getId()
+                            && newWeather.getDate().equals(oldWeather.getDate());
+                }
+            });
+            mForecast = newForecast;
+            result.dispatchUpdatesTo(this);
+        }
     }
 
-    public class ForecastAdapterViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
+    public class ForecastAdapterViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         final TextView dateView;
         final TextView descriptionView;
@@ -141,11 +184,8 @@ public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.Foreca
         @Override
         public void onClick(View view) {
             int adapterPosition = getAdapterPosition();
-//          COMPLETED (37) Instead of passing the String for the clicked item, pass the date from the cursor
-            mCursor.moveToPosition(adapterPosition);
-            long dateInMillis = mCursor.getLong(MainActivity.INDEX_WEATHER_DATE);
-            mClickHandler.onClick(dateInMillis);
+            Date date = mForecast.get(adapterPosition).getDate();
+            mClickHandler.onClick(date);
         }
-        // Within ForecastAdapterViewHolder ///////////////////////////////////////////////////////
     }
 }
