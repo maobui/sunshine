@@ -6,6 +6,9 @@ import com.me.bui.sunshine.AppExecutors;
 import com.me.bui.sunshine.data.SunshineRepository;
 import com.me.bui.sunshine.data.db.SunshineDatabase;
 import com.me.bui.sunshine.data.network.WeatherNetworkDataSource;
+import com.me.bui.sunshine.ui.detail.DetailViewModelFactory;
+
+import java.util.Date;
 
 /**
  * Created by mao.bui on 7/26/2018.
@@ -25,5 +28,9 @@ public class InjectorUtils {
         return WeatherNetworkDataSource.getInstance(context.getApplicationContext(), executors);
     }
 
+    public static DetailViewModelFactory provideDetailViewModelFactory(Context context, Date date) {
+        SunshineRepository repository = provideRepository(context.getApplicationContext());
+        return new DetailViewModelFactory(repository, date);
+    }
 
 }

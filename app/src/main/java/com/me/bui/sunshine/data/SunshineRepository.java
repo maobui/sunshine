@@ -8,6 +8,8 @@ import com.me.bui.sunshine.data.db.WeatherDao;
 import com.me.bui.sunshine.data.db.WeatherEntry;
 import com.me.bui.sunshine.data.network.WeatherNetworkDataSource;
 
+import java.util.Date;
+
 /**
  * Created by mao.bui on 7/26/2018.
  */
@@ -68,6 +70,16 @@ public class SunshineRepository {
 
         startFetchWeatherService();
     }
+
+    /**
+     * Database related operations
+     **/
+
+    public LiveData<WeatherEntry> getWeatherByDate(Date date) {
+        initializeData();
+        return mWeatherDao.getWeatherByDate(date);
+    }
+
 
     /**
      * Database related operations

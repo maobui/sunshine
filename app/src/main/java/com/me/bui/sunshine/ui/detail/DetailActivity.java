@@ -56,31 +56,14 @@ public class DetailActivity extends AppCompatActivity implements LifecycleOwner 
         mUri = getIntent().getData();
         if (mUri == null) throw new NullPointerException("URI for DetailActivity cannot be null");
 
-        mViewModel = ViewModelProviders.of(this).get(DetailActivityViewModel.class);
+        Date date = SunshineDateUtils.getNormalizedUtcDateForToday();
 
-        AppExecutors.getInstance().diskIO().execute(()-> {
-            try {
-
-                // Pretend this is the network loading data
-                Thread.sleep(4000);
-                Date today = SunshineDateUtils.getNormalizedUtcDateForToday();
-                WeatherEntry pretendWeatherFromDatabase = new WeatherEntry(1, 210, today,88.0,99.0,71,1030, 74, 5);
-                mViewModel.setWeather(pretendWeatherFromDatabase);
-
-                Thread.sleep(2000);
-                pretendWeatherFromDatabase = new WeatherEntry(1, 952, today,50.0,60.0,46,1044, 70, 100);
-                mViewModel.setWeather(pretendWeatherFromDatabase);
-
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        });
+        // Get the ViewModel from the factory
+        DetailViewModelFactory factory = InjectorUtils.provideDetailViewModelFactory(this.getApplicationContext(), date);
+        mViewModel = ViewModelProviders.of(this, factory).get(DetailActivityViewModel.class);
 
         mViewModel.getWeather().observe(this, weatherEntry -> {
             if (weatherEntry != null) bindWeatherToUI(weatherEntry);});
-
-        // THIS IS JUST TO RUN THE CODE; REPOSITORY SHOULD NEVER BE CREATED IN DETAILACTIVITY
-        InjectorUtils.provideRepository(this).initializeData();
     }
 
     @Override
