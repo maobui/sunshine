@@ -16,8 +16,14 @@ import java.util.Date;
 public interface WeatherDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    void bulkInsert(WeatherEntry ... weatherEntries);
+    void bulkInsert(WeatherEntry... weatherEntries);
 
     @Query("SELECT * FROM weather WHERE date = :date")
     LiveData<WeatherEntry> getWeatherByDate(Date date);
+
+    @Query("SELECT COUNT(id) FROM weather WHERE date >= :date")
+    int countAllFutureWeather(Date date);
+
+    @Query("DELETE FROM weather WHERE date < :date")
+    void deleteOldWeather(Date date);
 }
