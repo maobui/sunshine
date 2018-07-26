@@ -1,5 +1,9 @@
 package com.me.bui.sunshine.ui.detail;
 
+import android.arch.lifecycle.Lifecycle;
+import android.arch.lifecycle.LifecycleOwner;
+import android.arch.lifecycle.LifecycleRegistry;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.database.Cursor;
 import android.databinding.DataBindingUtil;
@@ -15,54 +19,64 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.me.bui.sunshine.AppExecutors;
 import com.me.bui.sunshine.R;
+import com.me.bui.sunshine.data.db.WeatherEntry;
 import com.me.bui.sunshine.ui.setting.SettingsActivity;
 import com.me.bui.sunshine.data.db.WeatherContract;
 import com.me.bui.sunshine.databinding.ActivityDetailBinding;
 import com.me.bui.sunshine.utilities.SunshineDateUtils;
 import com.me.bui.sunshine.utilities.SunshineWeatherUtils;
 
-public class DetailActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>{
+import java.util.Date;
+
+public class DetailActivity extends AppCompatActivity implements LifecycleOwner {
 
     private static final String FORECAST_SHARE_HASHTAG = " #SunshineApp";
-
-    public static final String[] WEATHER_DETAIL_PROJECTION = {
-            WeatherContract.WeatherEntry.COLUMN_DATE,
-            WeatherContract.WeatherEntry.COLUMN_MAX_TEMP,
-            WeatherContract.WeatherEntry.COLUMN_MIN_TEMP,
-            WeatherContract.WeatherEntry.COLUMN_HUMIDITY,
-            WeatherContract.WeatherEntry.COLUMN_PRESSURE,
-            WeatherContract.WeatherEntry.COLUMN_WIND_SPEED,
-            WeatherContract.WeatherEntry.COLUMN_DEGREES,
-            WeatherContract.WeatherEntry.COLUMN_WEATHER_ID
-    };
-    public static final int INDEX_WEATHER_DATE = 0;
-    public static final int INDEX_WEATHER_MAX_TEMP = 1;
-    public static final int INDEX_WEATHER_MIN_TEMP = 2;
-    public static final int INDEX_WEATHER_HUMIDITY = 3;
-    public static final int INDEX_WEATHER_PRESSURE = 4;
-    public static final int INDEX_WEATHER_WIND_SPEED = 5;
-    public static final int INDEX_WEATHER_DEGREES = 6;
-    public static final int INDEX_WEATHER_CONDITION_ID = 7;
-
-    private static final int ID_DETAIL_LOADER = 353;
-
     private String mForecastSummary;
     private Uri mUri;
 
+    private LifecycleRegistry mLifecycleRegistry;
+    private DetailActivityViewModel mViewModel;
     private ActivityDetailBinding mDetailBinding;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
 
+        mLifecycleRegistry = new LifecycleRegistry(this);
+        mLifecycleRegistry.markState(Lifecycle.State.CREATED);
+
+
         mDetailBinding = DataBindingUtil.setContentView(this, R.layout.activity_detail);
 
         mUri = getIntent().getData();
         if (mUri == null) throw new NullPointerException("URI for DetailActivity cannot be null");
 
-        getSupportLoaderManager().initLoader(ID_DETAIL_LOADER, null, this);
+        mViewModel = ViewModelProviders.of(this).get(DetailActivityViewModel.class);
+
+        AppExecutors.getInstance().diskIO().execute(()-> {
+            try {
+
+                // Pretend this is the network loading data
+                Thread.sleep(4000);
+                Date today = SunshineDateUtils.getNormalizedUtcDateForToday();
+                WeatherEntry pretendWeatherFromDatabase = new WeatherEntry(1, 210, today,88.0,99.0,71,1030, 74, 5);
+                mViewModel.setWeather(pretendWeatherFromDatabase);
+
+                Thread.sleep(2000);
+                pretendWeatherFromDatabase = new WeatherEntry(1, 952, today,50.0,60.0,46,1044, 70, 100);
+                mViewModel.setWeather(pretendWeatherFromDatabase);
+
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        });
+
+        mViewModel.getWeather().observe(this, weatherEntry -> {
+            if (weatherEntry != null) bindWeatherToUI(weatherEntry);});
     }
 
     @Override
@@ -100,44 +114,13 @@ public class DetailActivity extends AppCompatActivity implements LoaderManager.L
         return shareIntent;
     }
 
-    @NonNull
-    @Override
-    public Loader<Cursor> onCreateLoader(int loaderId, @Nullable Bundle args) {
-        switch (loaderId) {
+    public void bindWeatherToUI(WeatherEntry weatherEntry) {
 
-//          COMPLETED (23) If the loader requested is our detail loader, return the appropriate CursorLoader
-            case ID_DETAIL_LOADER:
-
-                return new CursorLoader(this,
-                        mUri,
-                        WEATHER_DETAIL_PROJECTION,
-                        null,
-                        null,
-                        null);
-
-            default:
-                throw new RuntimeException("Loader Not Implemented: " + loaderId);
-        }
-    }
-
-    @Override
-    public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor data) {
-        boolean cursorHasValidData = false;
-        if (data != null && data.moveToFirst()) {
-            /* We have valid data, continue on to bind the data to the UI */
-            cursorHasValidData = true;
-        }
-
-        if (!cursorHasValidData) {
-            /* No data to display, simply return and do nothing */
-            return;
-        }
-
-        int weatherId = data.getInt(INDEX_WEATHER_CONDITION_ID);
+        int weatherId = weatherEntry.getWeatherIconId();
         int weatherImageId = SunshineWeatherUtils.getLargeArtResourceIdForWeatherCondition(weatherId);
         mDetailBinding.primaryInfo.weatherIcon.setImageResource(weatherImageId);
 
-        long localDateMidnightGmt = data.getLong(INDEX_WEATHER_DATE);
+        long localDateMidnightGmt = weatherEntry.getDate().getTime();
         String dateText = SunshineDateUtils.getFriendlyDateString(this, localDateMidnightGmt, true);
         mDetailBinding.primaryInfo.date.setText(dateText);
 
@@ -147,34 +130,34 @@ public class DetailActivity extends AppCompatActivity implements LoaderManager.L
         mDetailBinding.primaryInfo.weatherDescription.setContentDescription(descriptionA11y);
         mDetailBinding.primaryInfo.weatherIcon.setContentDescription(descriptionA11y);
 
-        double highInCelsius = data.getDouble(INDEX_WEATHER_MAX_TEMP);
+        double highInCelsius = weatherEntry.getMax();
         String highString = SunshineWeatherUtils.formatTemperature(this, highInCelsius);
         String highA11y = getString(R.string.a11y_high_temp, highString);
         mDetailBinding.primaryInfo.highTemperature.setText(highString);
         mDetailBinding.primaryInfo.highTemperature.setContentDescription(highA11y);
 
-        double lowInCelsius = data.getDouble(INDEX_WEATHER_MIN_TEMP);
+        double lowInCelsius = weatherEntry.getMin();
         String lowString = SunshineWeatherUtils.formatTemperature(this, lowInCelsius);
         String lowA11y = getString(R.string.a11y_low_temp, lowString);
         mDetailBinding.primaryInfo.lowTemperature.setText(lowString);
         mDetailBinding.primaryInfo.lowTemperature.setContentDescription(lowA11y);
 
-        float humidity = data.getFloat(INDEX_WEATHER_HUMIDITY);
+        double humidity = weatherEntry.getHumidity();
         String humidityString = getString(R.string.format_humidity, humidity);
         String humidityA11y = getString(R.string.a11y_humidity, humidityString);
         mDetailBinding.extraDetails.humidity.setText(humidityString);
         mDetailBinding.extraDetails.humidity.setContentDescription(humidityA11y);
         mDetailBinding.extraDetails.humidityLabel.setContentDescription(humidityA11y);
 
-        float windSpeed = data.getFloat(INDEX_WEATHER_WIND_SPEED);
-        float windDirection = data.getFloat(INDEX_WEATHER_DEGREES);
+        double windSpeed = weatherEntry.getWind();
+        double windDirection = weatherEntry.getDegrees();
         String windString = SunshineWeatherUtils.getFormattedWind(this, windSpeed, windDirection);
         String windA11y = getString(R.string.a11y_wind, windString);
         mDetailBinding.extraDetails.windMeasurement.setText(windString);
         mDetailBinding.extraDetails.windMeasurement.setContentDescription(windA11y);
         mDetailBinding.extraDetails.windLabel.setContentDescription(windA11y);
 
-        float pressure = data.getFloat(INDEX_WEATHER_PRESSURE);
+        double pressure = weatherEntry.getPressure();
         String pressureString = getString(R.string.format_pressure, pressure);
         String pressureA11y = getString(R.string.a11y_pressure, pressureString);
         mDetailBinding.extraDetails.pressure.setText(pressureString);
@@ -186,7 +169,15 @@ public class DetailActivity extends AppCompatActivity implements LoaderManager.L
     }
 
     @Override
-    public void onLoaderReset(@NonNull Loader<Cursor> loader) {
-
+    public void onStart() {
+        super.onStart();
+        mLifecycleRegistry.markState(Lifecycle.State.STARTED);
     }
+
+    @NonNull
+    @Override
+    public Lifecycle getLifecycle() {
+        return mLifecycleRegistry;
+    }
+
 }
