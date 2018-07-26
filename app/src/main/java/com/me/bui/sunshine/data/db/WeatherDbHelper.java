@@ -1,10 +1,9 @@
-package com.me.bui.sunshine.data;
+package com.me.bui.sunshine.data.db;
 
 import android.content.Context;
-import android.database.DatabaseErrorHandler;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import com.me.bui.sunshine.data.WeatherContract.WeatherEntry;
+import com.me.bui.sunshine.data.db.WeatherContract.WeatherEntry;
 
 /**
  * Created by mao.bui on 5/28/2018.

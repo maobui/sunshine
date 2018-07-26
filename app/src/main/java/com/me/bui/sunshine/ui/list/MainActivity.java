@@ -13,14 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.me.bui.sunshine;
+package com.me.bui.sunshine.ui.list;
 
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -34,12 +33,13 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 
-import com.me.bui.sunshine.data.SunshinePreferences;
-import com.me.bui.sunshine.data.WeatherContract;
-import com.me.bui.sunshine.sync.SunshineSyncUtils;
-import com.me.bui.sunshine.utilities.FakeDataUtils;
+import com.me.bui.sunshine.ui.detail.DetailActivity;
+import com.me.bui.sunshine.R;
+import com.me.bui.sunshine.ui.setting.SettingsActivity;
+import com.me.bui.sunshine.data.pref.SunshinePreferences;
+import com.me.bui.sunshine.data.db.WeatherContract;
+import com.me.bui.sunshine.data.network.SunshineSyncUtils;
 
 public class MainActivity extends AppCompatActivity implements
         ForecastAdapter.ForecastAdapterOnClickHandler,

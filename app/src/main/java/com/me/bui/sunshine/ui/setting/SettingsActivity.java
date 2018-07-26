@@ -1,4 +1,4 @@
-package com.me.bui.sunshine;
+package com.me.bui.sunshine.ui.setting;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;

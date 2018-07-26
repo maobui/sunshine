@@ -13,13 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.me.bui.sunshine.utilities;
+package com.me.bui.sunshine.data.network;
 
 import android.content.ContentValues;
 import android.content.Context;
 
-import com.me.bui.sunshine.data.SunshinePreferences;
-import com.me.bui.sunshine.data.WeatherContract;
+import com.me.bui.sunshine.data.pref.SunshinePreferences;
+import com.me.bui.sunshine.data.db.WeatherContract;
+import com.me.bui.sunshine.utilities.SunshineDateUtils;
+import com.me.bui.sunshine.utilities.SunshineWeatherUtils;
 
 import org.json.JSONArray;
 import org.json.JSONException;

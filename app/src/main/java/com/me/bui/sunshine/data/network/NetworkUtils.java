@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.me.bui.sunshine.utilities;
+package com.me.bui.sunshine.data.network;
 
 import android.content.Context;
 import android.net.Uri;
 import android.util.Log;
 
-import com.me.bui.sunshine.data.SunshinePreferences;
+import com.me.bui.sunshine.data.pref.SunshinePreferences;
 
 import java.io.IOException;
 import java.io.InputStream;

@@ -1,4 +1,4 @@
-package com.me.bui.sunshine;
+package com.me.bui.sunshine.ui.detail;
 
 import android.content.Intent;
 import android.database.Cursor;
@@ -14,9 +14,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.TextView;
 
-import com.me.bui.sunshine.data.WeatherContract;
+import com.me.bui.sunshine.R;
+import com.me.bui.sunshine.ui.setting.SettingsActivity;
+import com.me.bui.sunshine.data.db.WeatherContract;
 import com.me.bui.sunshine.databinding.ActivityDetailBinding;
 import com.me.bui.sunshine.utilities.SunshineDateUtils;
 import com.me.bui.sunshine.utilities.SunshineWeatherUtils;

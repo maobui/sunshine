@@ -1,4 +1,4 @@
-package com.me.bui.sunshine.data;
+package com.me.bui.sunshine.data.db;
 
 import android.net.Uri;
 import android.provider.BaseColumns;

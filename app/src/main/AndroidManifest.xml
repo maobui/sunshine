@@ -11,7 +11,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity"
+        <activity android:name=".ui.list.MainActivity"
             android:theme="@style/AppTheme.Forecast">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -19,24 +19,24 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".DetailActivity">
+        <activity android:name=".ui.detail.DetailActivity">
             android:parentActivityName=".MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity" />
+                android:value=".ui.list.MainActivity" />
         </activity>
-        <activity android:name=".SettingsActivity" />
+        <activity android:name=".ui.setting.SettingsActivity" />
 
         <provider
-            android:name=".data.WeatherProvider"
+            android:name=".data.db.WeatherProvider"
             android:authorities="@string/content_authority"
             android:exported="false" />
 
         <service
-            android:name=".sync.SunshineSyncIntentService"
+            android:name=".data.network.SunshineSyncIntentService"
             android:exported="false" />
         <service
-            android:name=".sync.SunshineFirebaseJobService"
+            android:name=".data.network.SunshineFirebaseJobService"
             android:enabled="true"
             android:exported="false">
             <intent-filter>

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.me.bui.sunshine.data;
+package com.me.bui.sunshine.data.pref;
 
 import android.content.Context;
 import android.content.SharedPreferences;

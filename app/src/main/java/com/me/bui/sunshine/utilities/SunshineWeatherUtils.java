@@ -18,7 +18,7 @@ package com.me.bui.sunshine.utilities;
 import android.content.Context;
 import android.util.Log;
 
-import com.me.bui.sunshine.data.SunshinePreferences;
+import com.me.bui.sunshine.data.pref.SunshinePreferences;
 import com.me.bui.sunshine.R;
 
 

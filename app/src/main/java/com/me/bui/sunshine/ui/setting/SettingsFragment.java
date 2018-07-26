@@ -1,4 +1,4 @@
-package com.me.bui.sunshine;
+package com.me.bui.sunshine.ui.setting;
 
 import android.app.Activity;
 import android.content.SharedPreferences;
@@ -9,9 +9,10 @@ import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceFragmentCompat;
 import android.support.v7.preference.PreferenceScreen;
 
-import com.me.bui.sunshine.data.SunshinePreferences;
-import com.me.bui.sunshine.data.WeatherContract;
-import com.me.bui.sunshine.sync.SunshineSyncUtils;
+import com.me.bui.sunshine.R;
+import com.me.bui.sunshine.data.pref.SunshinePreferences;
+import com.me.bui.sunshine.data.db.WeatherContract;
+import com.me.bui.sunshine.data.network.SunshineSyncUtils;
 
 /**
  * Created by mao.bui on 5/27/2018.

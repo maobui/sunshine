@@ -1,15 +1,15 @@
-package com.me.bui.sunshine.sync;
+package com.me.bui.sunshine.data.network;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.text.format.DateUtils;
 
-import com.me.bui.sunshine.data.SunshinePreferences;
-import com.me.bui.sunshine.data.WeatherContract;
-import com.me.bui.sunshine.utilities.NetworkUtils;
-import com.me.bui.sunshine.utilities.NotificationUtils;
-import com.me.bui.sunshine.utilities.OpenWeatherJsonUtils;
+import com.me.bui.sunshine.data.pref.SunshinePreferences;
+import com.me.bui.sunshine.data.db.WeatherContract;
+import com.me.bui.sunshine.data.network.NetworkUtils;
+import com.me.bui.sunshine.data.network.NotificationUtils;
+import com.me.bui.sunshine.data.network.OpenWeatherJsonUtils;
 
 import java.net.URL;
 

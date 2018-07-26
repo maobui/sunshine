@@ -1,4 +1,4 @@
-package com.me.bui.sunshine.utilities;
+package com.me.bui.sunshine.data.network;
 
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -13,10 +13,12 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v4.content.ContextCompat;
 
-import com.me.bui.sunshine.DetailActivity;
+import com.me.bui.sunshine.ui.detail.DetailActivity;
 import com.me.bui.sunshine.R;
-import com.me.bui.sunshine.data.SunshinePreferences;
-import com.me.bui.sunshine.data.WeatherContract;
+import com.me.bui.sunshine.data.pref.SunshinePreferences;
+import com.me.bui.sunshine.data.db.WeatherContract;
+import com.me.bui.sunshine.utilities.SunshineDateUtils;
+import com.me.bui.sunshine.utilities.SunshineWeatherUtils;
 
 /**
  * Created by mao.bui on 6/8/2018.

@@ -1,8 +1,7 @@
-package com.me.bui.sunshine.sync;
+package com.me.bui.sunshine.data.network;
 
 import android.app.IntentService;
 import android.content.Intent;
-import android.content.Context;
 
 /**
  * An {@link IntentService} subclass for handling asynchronous task requests in

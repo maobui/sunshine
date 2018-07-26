@@ -1,10 +1,7 @@
-package com.me.bui.sunshine.sync;
+package com.me.bui.sunshine.data.network;
 
-import android.app.Service;
 import android.content.Context;
-import android.content.Intent;
 import android.os.AsyncTask;
-import android.os.IBinder;
 
 import com.firebase.jobdispatcher.JobParameters;
 import com.firebase.jobdispatcher.JobService;

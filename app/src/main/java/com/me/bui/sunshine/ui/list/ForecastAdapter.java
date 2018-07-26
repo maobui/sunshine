@@ -1,4 +1,4 @@
-package com.me.bui.sunshine;
+package com.me.bui.sunshine.ui.list;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.me.bui.sunshine.R;
 import com.me.bui.sunshine.utilities.SunshineDateUtils;
 import com.me.bui.sunshine.utilities.SunshineWeatherUtils;
 
@@ -113,7 +114,7 @@ public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.Foreca
         return mCursor.getCount();
     }
 
-    void swapCursor(Cursor newCursor) {
+    public void swapCursor(Cursor newCursor) {
         mCursor = newCursor;
         notifyDataSetChanged();
     }

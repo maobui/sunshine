@@ -1,10 +1,9 @@
-package com.me.bui.sunshine.sync;
+package com.me.bui.sunshine.data.network;
 
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 
 import com.firebase.jobdispatcher.Constraint;
@@ -14,7 +13,7 @@ import com.firebase.jobdispatcher.GooglePlayDriver;
 import com.firebase.jobdispatcher.Job;
 import com.firebase.jobdispatcher.Lifetime;
 import com.firebase.jobdispatcher.Trigger;
-import com.me.bui.sunshine.data.WeatherContract;
+import com.me.bui.sunshine.data.db.WeatherContract;
 
 import java.util.concurrent.TimeUnit;
 

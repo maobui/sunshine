@@ -3,8 +3,8 @@ package com.me.bui.sunshine.utilities;
 import android.content.ContentValues;
 import android.content.Context;
 
-import com.me.bui.sunshine.data.WeatherContract;
-import com.me.bui.sunshine.data.WeatherContract.WeatherEntry;
+import com.me.bui.sunshine.data.db.WeatherContract;
+import com.me.bui.sunshine.data.db.WeatherContract.WeatherEntry;
 
 import java.util.ArrayList;
 import java.util.List;

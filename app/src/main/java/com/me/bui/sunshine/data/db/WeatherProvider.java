@@ -1,4 +1,4 @@
-package com.me.bui.sunshine.data;
+package com.me.bui.sunshine.data.db;
 
 import android.content.ContentProvider;
 import android.content.ContentValues;
