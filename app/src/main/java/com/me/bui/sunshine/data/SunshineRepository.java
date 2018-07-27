@@ -129,7 +129,7 @@ public class SunshineRepository {
      * Network related operation
      */
 
-    private void startFetchWeatherService() {
+    public void startFetchWeatherService() {
         mWeatherNetworkDataSource.startFetchWeatherService();
     }
 }

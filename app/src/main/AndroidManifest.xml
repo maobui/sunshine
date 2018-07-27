@@ -27,11 +27,6 @@
         </activity>
         <activity android:name=".ui.setting.SettingsActivity" />
 
-        <provider
-            android:name=".data.db.WeatherProvider"
-            android:authorities="@string/content_authority"
-            android:exported="false" />
-
         <service
             android:name=".data.network.SunshineSyncIntentService"
             android:exported="false" />

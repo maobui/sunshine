@@ -4,6 +4,7 @@ import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.content.Context;
 import android.content.Intent;
+import android.text.format.DateUtils;
 import android.util.Log;
 
 import com.firebase.jobdispatcher.Constraint;
@@ -15,6 +16,7 @@ import com.firebase.jobdispatcher.Lifetime;
 import com.firebase.jobdispatcher.Trigger;
 import com.me.bui.sunshine.AppExecutors;
 import com.me.bui.sunshine.data.db.WeatherEntry;
+import com.me.bui.sunshine.data.pref.SunshinePreferences;
 
 import java.net.URL;
 import java.util.concurrent.TimeUnit;
@@ -165,6 +167,19 @@ public class WeatherNetworkDataSource {
                     mDownloadedWeatherForecasts.postValue(response.getWeatherForecast());
 
                     // If the code reaches this point, we have successfully performed our sync
+
+                    // Notification
+                    boolean notificationsEnabled = SunshinePreferences.areNotificationsEnabled(mContext);
+                    long timeSinceLastNotification = SunshinePreferences
+                            .getEllapsedTimeSinceLastNotification(mContext);
+
+                    boolean oneDayPassedSinceLastNotification = false;
+                    if (timeSinceLastNotification >= DateUtils.DAY_IN_MILLIS) {
+                        oneDayPassedSinceLastNotification = true;
+                    }
+                    if (notificationsEnabled && oneDayPassedSinceLastNotification) {
+                        NotificationUtils.notifyUserOfNewWeather(mContext, response);
+                    }
                 }
             } catch (Exception e) {
                 // Server probably invalid

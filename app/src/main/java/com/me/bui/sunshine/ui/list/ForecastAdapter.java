@@ -66,7 +66,7 @@ public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.Foreca
     public void onBindViewHolder(ForecastAdapterViewHolder forecastAdapterViewHolder, int position) {
         ListWeatherEntry currentWeather = mForecast.get(position);
 
-        int weatherId = currentWeather.getId();
+        int weatherId = currentWeather.getWeatherIconId();
         int weatherImageId;
         int viewType = getItemViewType(position);
         switch (viewType) {
